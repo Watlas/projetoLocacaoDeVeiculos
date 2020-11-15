@@ -1,6 +1,6 @@
 /* Logico_locacao: */
 
-CREATE TABLE Pessoas (
+CREATE TABLE pessoas (
     pessoa_idem INTEGER PRIMARY KEY,
     pessoa_nome VARCHAR,
     pessoa_telefone VARCHAR,
@@ -8,19 +8,19 @@ CREATE TABLE Pessoas (
 );
 
 CREATE TABLE pessoas_pf (
-    pf_pessoa_cpf INTEGER,
-    pf_pessoa_rg INTEGER,
+    pessoa_pf_cpf INTEGER,
+    pessoa_pf_rg INTEGER,
     pf_pessoas_idem INTEGER PRIMARY KEY
 );
 
 CREATE TABLE pessoas_pj (
-    pj_pessoa_cnpj VARCHAR,
-    pj_pessoa_nomefantasia VARCHAR,
-    pj_pessoa_razao_social VARCHAR,
+    pessoa_pj_cnpj VARCHAR,
+    pessoa_pj_nomefantasia VARCHAR,
+    pessoa_pj_razao_social VARCHAR,
     pj_pessoas_idem INTEGER PRIMARY KEY
 );
 
-CREATE TABLE Endereco (
+CREATE TABLE endereco (
     endere_idem INTEGER PRIMARY KEY,
     endere_cep VARCHAR,
     endere_cidade VARCHAR,
@@ -32,13 +32,13 @@ CREATE TABLE Endereco (
     endere_moto_idem INTEGER
 );
 
-CREATE TABLE Modelo (
+CREATE TABLE modelo (
     modelo_idem INTEGER PRIMARY KEY,
     modelo_descricao VARCHAR,
     modelo_marca_idem INTEGER
 );
 
-CREATE TABLE Veiculos (
+CREATE TABLE veiculos (
     veiculo_idem INTEGER PRIMARY KEY,
     veiculo_renavam VARCHAR,
     veiculo_precoDeCompra NUMERIC,
@@ -53,12 +53,12 @@ CREATE TABLE Veiculos (
     veiculo__Modelo_idem INTEGER
 );
 
-CREATE TABLE Marca (
+CREATE TABLE marca (
     marca_idem INTEGER PRIMARY KEY,
     marca_descricao VARCHAR
 );
 
-CREATE TABLE Motorista (
+CREATE TABLE motorista (
     motorista_idem INTEGER PRIMARY KEY,
     motorista_cpf VARCHAR,
     motorista_nome VARCHAR,
@@ -75,7 +75,7 @@ CREATE TABLE cnh (
     cnh_numeroDoRegistro INTEGER
 );
 
-CREATE TABLE Locacao (
+CREATE TABLE locacao (
     loca_idem INTEGER PRIMARY KEY,
     loca_codigodelocacao INTEGER,
     loca_dataDeRetirada DATE,
@@ -96,7 +96,10 @@ CREATE TABLE multas (
 
 CREATE TABLE reserva (
     idem INTEGER PRIMARY KEY,
-    reserva_locacao_idem INTEGER
+    reserva_cliente_idem INTEGER,
+    reserva_veiculo_idem INTEGER,
+    datadareserva DATE,
+    dataexpiracao DATE
 );
 
 CREATE TABLE mantem_multa_cnh (
@@ -118,20 +121,34 @@ CREATE TABLE mantem_aluga (
     aluga_pessoas_idem INTEGER,
     dataDoAlugamento DATE
 );
+
+CREATE TABLE administrador (
+    adm_idem SERIAL PRIMARY KEY,
+    adm_nome VARCHAR,
+    adm_senha VARCHAR
+);
+
+CREATE TABLE mantem_adm_veiculo_pessoa_loca (
+    mantem_adm_control_idem SERIAL PRIMARY KEY,
+    control_adm_administrador_idem INTEGER,
+    control_adm_Pessoas_idem INTEGER,
+    control_adm_Veiculos_idem INTEGER,
+    control_adm_Locacao_idem INTEGER
+);
  
 ALTER TABLE pessoas_pf ADD CONSTRAINT FK_pessoas_pf_2
     FOREIGN KEY (pf_pessoas_idem)
-    REFERENCES Pessoas (pessoa_idem)
+    REFERENCES pessoas (pessoa_idem)
     ON DELETE CASCADE;
  
 ALTER TABLE pessoas_pj ADD CONSTRAINT FK_pessoas_pj_2
     FOREIGN KEY (pj_pessoas_idem)
-    REFERENCES Pessoas (pessoa_idem)
+    REFERENCES pessoas (pessoa_idem)
     ON DELETE CASCADE;
  
 ALTER TABLE Endereco ADD CONSTRAINT FK_Endereco_2
     FOREIGN KEY (endere_pesso_idem)
-    REFERENCES Pessoas (pessoa_idem)
+    REFERENCES pessoas (pessoa_idem)
     ON DELETE RESTRICT;
  
 ALTER TABLE Endereco ADD CONSTRAINT FK_Endereco_3
@@ -141,23 +158,29 @@ ALTER TABLE Endereco ADD CONSTRAINT FK_Endereco_3
  
 ALTER TABLE Modelo ADD CONSTRAINT FK_Modelo_2
     FOREIGN KEY (modelo_marca_idem)
-    REFERENCES Marca (marca_idem)
+    REFERENCES marca (marca_idem)
     ON DELETE RESTRICT;
  
 ALTER TABLE Veiculos ADD CONSTRAINT FK_Veiculos_2
     FOREIGN KEY (veiculo__Modelo_idem)
-    REFERENCES Modelo (modelo_idem)
+    REFERENCES modelo (modelo_idem)
     ON DELETE RESTRICT;
  
 ALTER TABLE Locacao ADD CONSTRAINT FK_Locacao_2
     FOREIGN KEY (loca_motorista_idem)
-    REFERENCES Motorista (motorista_idem)
+    REFERENCES motorista (motorista_idem)
     ON DELETE CASCADE;
  
 ALTER TABLE reserva ADD CONSTRAINT FK_reserva_2
-    FOREIGN KEY (reserva_locacao_idem)
-    REFERENCES Locacao (loca_idem)
+    FOREIGN KEY (reserva_cliente_idem)
+    REFERENCES locacao (loca_idem)
     ON DELETE CASCADE;
+	
+	ALTER TABLE reserva ADD CONSTRAINT FK_reserva_3
+    FOREIGN KEY (reserva_veiculo_idem)
+    REFERENCES veiculos (veiculo_idem)
+    ON DELETE CASCADE;
+ 
  
 ALTER TABLE mantem_multa_cnh ADD CONSTRAINT FK_mantem_multa_cnh_1
     FOREIGN KEY (mantem_multa_habilitacao_idem)
@@ -166,7 +189,7 @@ ALTER TABLE mantem_multa_cnh ADD CONSTRAINT FK_mantem_multa_cnh_1
  
 ALTER TABLE mantem_multa_cnh ADD CONSTRAINT FK_mantem_multa_cnh_2
     FOREIGN KEY (mantem_multa_motorista_idem)
-    REFERENCES Motorista (motorista_idem)
+    REFERENCES motorista (motorista_idem)
     ON DELETE RESTRICT;
  
 ALTER TABLE mantem_multa_cnh ADD CONSTRAINT FK_mantem_multa_cnh_3
@@ -176,20 +199,40 @@ ALTER TABLE mantem_multa_cnh ADD CONSTRAINT FK_mantem_multa_cnh_3
  
 ALTER TABLE contem ADD CONSTRAINT FK_contem_1
     FOREIGN KEY (mantem_loca_Veiculos_idem)
-    REFERENCES Veiculos (veiculo_idem)
+    REFERENCES veiculos (veiculo_idem)
     ON DELETE RESTRICT;
  
 ALTER TABLE contem ADD CONSTRAINT FK_contem_2
     FOREIGN KEY (mantem_loca_locacao_idem)
-    REFERENCES Locacao (loca_idem)
+    REFERENCES locacao (loca_idem)
     ON DELETE RESTRICT;
  
 ALTER TABLE mantem_aluga ADD CONSTRAINT FK_mantem_aluga_1
     FOREIGN KEY (aluga_locacao_idem)
-    REFERENCES Locacao (loca_idem)
+    REFERENCES locacao (loca_idem)
     ON DELETE RESTRICT;
  
 ALTER TABLE mantem_aluga ADD CONSTRAINT FK_mantem_aluga_2
     FOREIGN KEY (aluga_pessoas_idem)
-    REFERENCES Pessoas (pessoa_idem)
+    REFERENCES pessoas (pessoa_idem)
     ON DELETE SET NULL;
+ 
+ALTER TABLE mantem_adm_veiculo_pessoa_loca ADD CONSTRAINT FK_mantem_adm_veiculo_pessoa_loca_1
+    FOREIGN KEY (control_adm_administrador_idem)
+    REFERENCES administrador (adm_idem)
+    ON DELETE RESTRICT;
+ 
+ALTER TABLE mantem_adm_veiculo_pessoa_loca ADD CONSTRAINT FK_mantem_adm_veiculo_pessoa_loca_2
+    FOREIGN KEY (control_adm_pessoas_idem)
+    REFERENCES pessoas (pessoa_idem)
+    ON DELETE NO ACTION;
+ 
+ALTER TABLE mantem_adm_veiculo_pessoa_loca ADD CONSTRAINT FK_mantem_adm_veiculo_pessoa_loca_3
+    FOREIGN KEY (control_adm_Veiculos_idem)
+    REFERENCES veiculos (veiculo_idem)
+    ON DELETE NO ACTION;
+ 
+ALTER TABLE mantem_adm_veiculo_pessoa_loca ADD CONSTRAINT FK_mantem_adm_veiculo_pessoa_loca_4
+    FOREIGN KEY (control_adm_Locacao_idem)
+    REFERENCES locacao (loca_idem)
+    ON DELETE NO ACTION;
