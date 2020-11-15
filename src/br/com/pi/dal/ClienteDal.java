@@ -11,24 +11,25 @@ import java.util.List;
 public class ClienteDal implements ICRUD_GENERIC {
 
     private Connection conexao;
-    ClienteModel usuario = new ClienteModel();
+    ClienteModel clienteModel = new ClienteModel();
 
     public ClienteDal() throws Exception {
         this.conexao = Conexao.getInstance().getConnection();
     }
 
+
     @Override
-    public void Add(Object objeto) throws Exception {
+    public void add(Object objeto) throws Exception {
+        clienteModel = (ClienteModel) objeto;
+    }
+
+    @Override
+    public void delete(int n) throws Exception {
 
     }
 
     @Override
-    public void Delete(int n) throws Exception {
-
-    }
-
-    @Override
-    public void Update(Object objeto) throws Exception {
+    public void update(Object objeto) throws Exception {
 
     }
 
